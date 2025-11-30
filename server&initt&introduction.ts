@@ -44,16 +44,7 @@ npm install express
 কখন চালাবো:
 - প্রজেক্ট ইনিশিয়ালাইজ করার পরে
 
-3️⃣ Express types ইনস্টল (dev dependency):
-Command:
-npm install -D @types/express
-কাজ:
-- Express এর TypeScript type definitions দেয়
-- IntelliSense এবং type-checking সুবিধা দেয়
-কখন চালাবো:
-- Express ও TypeScript ইনস্টল করার পরে
-
- 4️⃣TypeScript ইনস্টল (dev dependency):
+3️⃣ TypeScript ইনস্টল (dev dependency):
 Command:
 npm install -D typescript
 কাজ:
@@ -62,7 +53,7 @@ npm install -D typescript
 কখন চালাবো:
 - Express ইনস্টল করার পরে
 
-5️⃣ tsconfig.json তৈরি করা:
+4️⃣ tsconfig.json তৈরি করা:
 Command:
 npx tsc --init
 কাজ:
@@ -71,14 +62,21 @@ npx tsc --init
 কখন চালাবো:
 - TypeScript ইনস্টল করার পরে
 
-6️⃣ tsconfig.json এ পরিবর্তন (ছোট প্রজেক্টের জন্য):
+5️⃣ tsconfig.json এ পরিবর্তন (ছোট প্রজেক্টের জন্য):
 - "rootDir" এবং "outDir" comment করা যাবে
 - অন্য সেটিংস ডিফল্ট রাখা যাবে
 কাজ:
 - ফোল্ডার structure সরল হয় ছোট প্রজেক্টের জন্য
 - বড় প্রজেক্টে ঠিক path দেওয়া ভালো
 
-
+6️⃣ Express types ইনস্টল (dev dependency):
+Command:
+npm install -D @types/express
+কাজ:
+- Express এর TypeScript type definitions দেয়
+- IntelliSense এবং type-checking সুবিধা দেয়
+কখন চালাবো:
+- Express ও TypeScript ইনস্টল করার পরে
 
 7️⃣ TSX ইনস্টল (dev dependency, TS সরাসরি চালানোর জন্য):
 Command:
