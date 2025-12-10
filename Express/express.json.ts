@@ -70,9 +70,8 @@
  * ব্যবহার করার নিয়ম
  * -----------------------------------------------
  */
+import express, { Request, Response } from "express";
 
-import express from "express";
-import { Request, Response } from "express";
 const app = express();
 
 // Middleware হিসেবে ব্যবহার (route এর আগে)

@@ -86,9 +86,7 @@
  * ব্যবহারগত উদাহরণ (middleware হিসেবে)
  * -----------------------------------------------
  */
-
-import express from "express";
-import { Request, Response } from "express";
+import express, { Request, Response } from "express";
 
 const app = express();
 
