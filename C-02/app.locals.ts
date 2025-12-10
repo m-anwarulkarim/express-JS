@@ -5,7 +5,7 @@
  *
  * 1️⃣ app.locals
  * -----------------
- * - Global variables store করার জন্য ব্যবহার হয়।
+ * - Application-wide (global) variables store করার জন্য ব্যবহার হয়।
  * - সব middleware, route, এবং views থেকে access করা যায়।
  * - সাধারণত configuration বা site-wide variables রাখার জন্য ব্যবহার হয়।
  *
@@ -59,9 +59,15 @@
 // });
 
 /**
- * 🔎 সংক্ষেপে:
- *
+ * 🔎 Key Points:
+ * -----------------
  * - app.locals → Application-wide variables
  * - res.locals → Request-specific variables
- * - Template rendering (view engine) বা middleware এ খুব কাজে লাগে
+ * - Template rendering (view engine) বা middleware এ খুব কাজে আসে
+ *
+ * 🔎 Common Mistakes:
+ * -----------------
+ * 1) res.locals variable ভুল middleware এ set করা, ফলে পরবর্তী middleware এ access পাওয়া যায় না
+ * 2) app.locals variables পরিবর্তন করা হচ্ছে runtime এ যা সব request কে প্রভাবিত করতে পারে
+ * 3) Template render করার সময় variable name mismatch হওয়া
  */

@@ -1,19 +1,19 @@
 /**
  * ===============================================
- * app.engine(ext, callback) – আরও বিস্তারিত ব্যাখ্যা
+ * app.engine(ext, callback) – বিস্তারিত ব্যাখ্যা
  * ===============================================
  *
- * 1️⃣ কি Purpose:
+ * 1️⃣ Purpose:
  * -----------------
- * - Express.js মূলত view/template engine ব্যবহার করে HTML generate করে।
- * - Default engine নেই। তুমি চাইলে EJS, Pug, Handlebars বা নিজের custom engine ব্যবহার করতে পারো।
- * - `app.engine()` দিয়ে তুমি **custom engine** register করো, যা নির্দিষ্ট file extension handle করবে।
+ * - Express.js view/template engine ব্যবহার করে HTML generate করে।
+ * - Default engine নেই। ইচ্ছামতো EJS, Pug, Handlebars বা custom engine ব্যবহার করা যায়।
+ * - `app.engine()` দিয়ে custom engine register করা হয়, যা নির্দিষ্ট file extension handle করে।
  *
  * 2️⃣ Parameters:
  * -----------------
  * 1. ext (string)
  *    - File extension (যেমন: "ejs", "pug", "hbs", "txt")
- *    - যেকোনো extension দিতে পারো, যেমন ".txt" বা ".md"
+ *    - যেকোনো extension ব্যবহার করা যায়, যেমন ".txt" বা ".md"
  *
  * 2. callback (function)
  *    - Rendering logic define করে।
@@ -24,7 +24,7 @@
  *
  * 3️⃣ Rendering Steps:
  * -----------------
- * - Express যখন render() method call করে, তখন:
+ * - Express যখন res.render() method call করে:
  *    1. filePath থেকে template file read করা হয়
  *    2. options object থেকে variables extract করা হয়
  *    3. template content এর মধ্যে variable placeholders replace করা হয়
@@ -32,7 +32,7 @@
  *
  * 4️⃣ Example – Simple Custom Engine:
  * -----------------
- * - ধরো তুমি ".txt" extension handle করতে চাও এবং "{{variable}}" replace করবে।
+ * - ধরুন ".txt" extension handle করা হবে এবং "{{variable}}" replace করা হবে
  */
 
 import express, { Request, Response } from "express";
@@ -51,6 +51,7 @@ app.engine("txt", (filePath: string, options: any, callback: Function) => {
       /{{(\w+)}}/g,
       (_, key) => options[key] || ""
     );
+
     return callback(null, rendered);
   });
 });
@@ -58,7 +59,7 @@ app.engine("txt", (filePath: string, options: any, callback: Function) => {
 // Set views folder
 app.set("views", path.join(__dirname, "views"));
 
-// Use custom template engine
+// Set default view engine
 app.set("view engine", "txt");
 
 // Example route rendering template
@@ -69,22 +70,31 @@ app.get("/", (req: Request, res: Response) => {
 /**
  * 5️⃣ Key Points:
  * -----------------
- * - Multiple engines register করা যায়:
+ * - Multiple engines register করা সম্ভব:
  *   app.engine("hbs", hbsEngine);
  *   app.engine("pug", pugEngine);
- * - `app.set("view engine", "ext")` দিয়ে default engine define করা হয়,
- *   এখন থেকে res.render("file") করলে ঐ engine ব্যবহার হবে।
- * - callback function must call callback(err, renderedContent), নাহলে response hang হবে।
+ * - `app.set("view engine", "ext")` দিয়ে default engine define করা হয়
+ *   এবং res.render("file") ঐ engine ব্যবহার করে।
+ * - callback function অবশ্যই callback(err, renderedContent) কল করতে হবে, নাহলে response hang হবে।
  *
  * - Practical uses:
  *   - EJS/Pug/Handlebars template integration
  *   - Custom template formats
  *   - Markdown to HTML conversion
- *   - Any server-side templating requirement
+ *   - যেকোনো server-side templating requirement
  *
  * 6️⃣ Advantages:
  * -----------------
- * - Flexibility: নিজের engine বানানো যায়
- * - Separation of concerns: Logic vs Template
+ * - Flexibility: custom engine তৈরি করা যায়
+ * - Separation of concerns: Logic ও Template আলাদা রাখা যায়
  * - Easy integration with res.render()
+ *
+ * 7️⃣ Common Mistakes:
+ * -----------------
+ * - callback কল না করা
+ * - ভুল file extension ব্যবহার
+ * - views folder path ঠিকমতো না দেওয়া
+ * - res.render() এ extension লিখে দেওয়া (res.render("index.txt") ❌)
+ * - synchronous fs.readFileSync ব্যবহার করে event loop block করা
+ * - fs.readFile error properly handle না করা
  */

@@ -1,5 +1,4 @@
 /**
- *
  * ===============================================
  * app.set() – বিস্তারিত ব্যাখ্যা
  * ===============================================
@@ -14,9 +13,9 @@
  * -----------------------------------------------
  */
 
-// import express from "express";
+import express from "express";
 
-// const app = express();
+const app = express();
 
 // Template engine set করা
 app.set("view engine", "ejs");
@@ -37,10 +36,10 @@ console.log("Trust proxy enabled?", app.get("trust proxy")); // true
 console.log("Custom setting:", app.get("myCustomSetting")); // 12345
 
 /**
- * 🔎 কী বোঝায়:
- *
- * - app.set(name, value) → set configuration
- * - app.get(name) → get configuration value
+ * 🔎 Key Points:
+ * -----------------
+ * - app.set(name, value) → configuration set করে
+ * - app.get(name) → configuration value access করে
  *
  * সাধারণ built-in settings:
  * - "view engine" → template engine set করা
@@ -51,4 +50,10 @@ console.log("Custom setting:", app.get("myCustomSetting")); // 12345
  * - "x-powered-by" → response header control
  *
  * Custom settings ও define করা যায় যেকোনো নাম ও value দিয়ে।
+ *
+ * 🔎 Common Mistakes:
+ * -----------------
+ * 1) app.get() ব্যবহার করার আগে set() না করা → undefined value পাওয়া যায়
+ * 2) Built-in setting ভুল value দেওয়া → unexpected behavior (যেমন trust proxy false হলে proxy headers ignore হবে)
+ * 3) Custom setting name conflict → built-in settings এর সাথে conflict হতে পারে
  */

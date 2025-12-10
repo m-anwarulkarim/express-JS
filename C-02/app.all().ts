@@ -4,9 +4,10 @@
  * ===============================================
  *
  * - `app.all(path, callback)` হলো Express.js এর একটি route handler।
- * - এটি নির্দিষ্ট path এর জন্য **সব HTTP methods** (GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD) handle করতে পারে।
+ * - এটি নির্দিষ্ট path এর জন্য **সব HTTP methods**
+ *   (GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD) handle করতে পারে।
  *
- * - সাধারণত common middleware বা catch-all route তৈরি করার জন্য ব্যবহার হয়।
+ * - সাধারণত common middleware বা catch-all route তৈরির জন্য ব্যবহার হয়।
  *
  * -----------------------------------------------
  * ব্যবহার উদাহরণ
@@ -34,4 +35,38 @@
  * - req.method দিয়ে কোন HTTP method এসেছে সেটা জানা যাবে।
  *
  * - প্রায়শই common middleware বা catch-all routes (404 handler) তৈরির সময় ব্যবহার হয়।
+ *
+ * -----------------------------------------------
+ * এই ক্ষেত্রে সাধারণত সবাই যে ভুলগুলো করে
+ * -----------------------------------------------
+ *
+ * 1) Important route এর আগে app.all() বসানো
+ *
+ *    ❌ ভুল:
+ *      app.all("*", (req, res) => {
+ *        res.send("Catch all");
+ *      });
+ *
+ *      app.get("/user", ...); // এই route আর কাজ করবে না
+ *
+ *    ✅ সঠিক:
+ *      app.get("/user", ...);
+ *      app.all("*", ...); // সবশেষে বসাতে হবে
+ *
+ * 2) Authentication ছাড়া সব method allow করে দেওয়া
+ *
+ *    Sensitive route এ app.all() ব্যবহার করলে
+ *    প্রয়োজনীয় security check না থাকলে vulnerability তৈরি হয়।
+ *
+ * 3) 404 handler বানাতে ভুল জায়গায় ব্যবহার করা
+ *
+ *    অনেকে 404 handle করার জন্য:
+ *      app.all("*", handler)
+ *    ব্যবহার করে, কিন্তু Express best practice হলো
+ *    শেষে normal middleware ব্যবহার করা।
+ *
+ *    ✅ ভালো:
+ *      app.use((req, res) => {
+ *        res.status(404).send("Not Found");
+ *      });
  */

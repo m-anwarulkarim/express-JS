@@ -29,19 +29,57 @@
  *
  * কিছু সাধারণ options:
  *
- * 1. dotfiles: ফাইলের নাম যদি dot দিয়ে শুরু হয় (hidden file)
+ * 1. dotfiles: hidden file serve করা হবে কিনা
  *    - 'allow' | 'deny' | 'ignore' (default: 'ignore')
  *
- * 2. etag: Cache validation এর জন্য ETag enable/disable করা যায়
+ * 2. etag: Cache validation এর জন্য ETag enable/disable
  *
  * 3. maxAge: Cache control – milliseconds বা string format
- *    উদাহরণ: maxAge: "1d" (1 day)
+ *    উদাহরণ: maxAge: "1d"
  *
- * 4. index: কোন ফাইলকে index হিসেবে serve করবে (default: 'index.html')
+ * 4. index: কোন ফাইলকে index হিসেবে serve করবে
+ *    (default: 'index.html')
  *
- * 5. redirect: যদি directory path দেওয়া হয়, trailing slash থাকলে redirect হবে কি না
+ * 5. redirect: directory path এ slash না থাকলে redirect হবে কিনা
  *
- * আরও option Express.js ডকুমেন্টেশন এ দেখুন
+ * -----------------------------------------------
+ * এই ক্ষেত্রে সাধারণত সবাই যে ভুলগুলো করে
+ * -----------------------------------------------
+ *
+ * 1) ভুল folder path দেওয়া
+ *
+ *    ❌ ভুল:
+ *      app.use(express.static("publc")); // টাইপো
+ *
+ *    ✅ সঠিক:
+ *      app.use(express.static("public"));
+ *
+ * 2) absolute path ব্যবহার না করা (ডাইনামিক প্রজেক্টে সমস্যা করে)
+ *
+ *    অনেক সময় project root ঠিকমত resolve হয় না।
+ *
+ *    ✅ ভালো পদ্ধতি:
+ *      import path from "path";
+ *      app.use(express.static(path.join(__dirname, "../public")));
+ *
+ * 3) আগে route বসিয়ে ফেলা
+ *
+ *    ❌ ভুল:
+ *      app.get("/", (req, res) => {...});
+ *      app.use(express.static("public"));
+ *
+ *    এতে static file কখনও serve নাও হতে পারে।
+ *
+ *    ✅ সঠিক:
+ *      app.use(express.static("public"));
+ *      app.get("/", ...);
+ *
+ * 4) Cache issue না বোঝা
+ *
+ *    অনেকে CSS/JS update করার পর browser এ change দেখতে পায় না
+ *    কারণ cache clear করে না।
+ *
+ *    debug করার সময় cache বন্ধ রাখা ভালো।
  *
  * -----------------------------------------------
  * ব্যবহার উদাহরণ
@@ -49,11 +87,12 @@
  */
 
 // import express from "express";
+// import path from "path";
 
 // const app = express();
 
 // // Middleware হিসেবে public ফোল্ডারের ফাইল serve করবে
-// app.use(express.static("public", { maxAge: "1d" }));
+// app.use(express.static(path.join(__dirname, "public"), { maxAge: "1d" }));
 
 // app.listen(3000, () => {
 //   console.log("Server running on http://localhost:3000");

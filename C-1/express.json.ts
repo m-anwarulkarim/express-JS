@@ -39,6 +39,34 @@
  *  - আপনি client থেকে পাঠানো data পাবেন না
  *
  * -----------------------------------------------
+ * এই ক্ষেত্রে সাধারণত সবাই যে ভুলগুলো করে
+ * -----------------------------------------------
+ *
+ * 1) Middleware টা route এর পরে ব্যবহার করা
+ *    ❌ ভুল:
+ *      app.post("/user", ...);
+ *      app.use(express.json());
+ *
+ *    ✅ সঠিক:
+ *      app.use(express.json());
+ *      app.post("/user", ...);
+ *
+ * 2) Content-Type ঠিক না পাঠানো
+ *    অনেক সময় ক্লায়েন্ট থেকে:
+ *      Content-Type: application/json
+ *    পাঠানো হয় না, ফলে Express JSON parse করে না।
+ *
+ * 3) form-data আর JSON গুলিয়ে ফেলা
+ *    অনেকেই Postman এ "form-data" বা "x-www-form-urlencoded"
+ *    সিলেক্ট করে JSON পাঠানোর চেষ্টা করে, ফলে req.body ফাঁকা থাকে।
+ *
+ * 4) বড় JSON পাঠিয়ে body size limit ভুলে যাওয়া
+ *    ডিফল্টভাবে Express সর্বোচ্চ 100kb JSON নেয়।
+ *    limit বাড়াতে হয়:
+ *
+ *    app.use(express.json({ limit: "1mb" }));
+ *
+ * -----------------------------------------------
  * ব্যবহার করার নিয়ম
  * -----------------------------------------------
  */
@@ -47,7 +75,7 @@ import express from "express";
 import { Request, Response } from "express";
 const app = express();
 
-// Middleware হিসেবে ব্যবহার
+// Middleware হিসেবে ব্যবহার (route এর আগে)
 app.use(express.json());
 
 /*

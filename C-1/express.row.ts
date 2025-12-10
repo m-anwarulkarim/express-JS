@@ -26,13 +26,61 @@
  *
  * - request body কে 그대로 Buffer হিসেবে সংগ্রহ করে রাখে।
  * - Buffer তৈরি হওয়ার পর সেই Buffer `req.body` তে পাওয়া যায়।
- * - যদি Content-Type header, parseable body বা matching type না হয় — তাহলে `req.body` undefined হবে। :contentReference[oaicite:2]{index=2}
+ * - যদি Content-Type header, parseable body বা matching type না হয়
+ *   — তাহলে `req.body` undefined হবে।
  *
  * -----------------------------------------------
- * সাধারণ options (express.raw({ ... })) — যেমন:
- *  - type: কোন Content-Type হলে raw parse হবে (রূপে default হয় "application/octet-stream") :contentReference[oaicite:3]{index=3}
- *  - limit: body size limit (যেমন "100kb") :contentReference[oaicite:4]{index=4}
- *  - inflate: gzip/deflate compressed body হলে auto‑decompress করতে দেয় বা না দেয় :contentReference[oaicite:5]{index=5}
+ * সাধারণ options (express.raw({ ... }))
+ * -----------------------------------------------
+ *
+ *  - type: কোন Content-Type হলে raw parse হবে
+ *    (default হয় "application/octet-stream")
+ *
+ *  - limit: body size limit (যেমন "100kb")
+ *
+ *  - inflate: gzip/deflate compressed body হলে auto-decompress করবে কিনা
+ *
+ * -----------------------------------------------
+ * এই ক্ষেত্রে সাধারণত সবাই যে ভুলগুলো করে
+ * -----------------------------------------------
+ *
+ * 1) express.json() বা express.urlencoded() আগে বসিয়ে ফেলা
+ *
+ *    ❌ ভুল:
+ *      app.use(express.json());
+ *      app.use(express.raw());
+ *
+ *    উপরের ক্ষেত্রে JSON middleware আগেই body consume করে ফেলবে,
+ *    ফলে raw middleware আর কাজ করবে না।
+ *
+ *    ✅ সঠিক:
+ *      app.use(express.raw({ type: "application/octet-stream" }));
+ *
+ * 2) Client থেকে ভুল Content-Type পাঠানো
+ *
+ *    Raw data পাঠানোর সময় অনেকেই:
+ *      Content-Type: application/json
+ *    দিয়ে দেয়, ফলে raw parser match করে না।
+ *
+ * 3) Buffer না বুঝে string ধরে নেওয়া
+ *
+ *    অনেকেই সরাসরি `req.body` কে string ধরে কাজ করে:
+ *
+ *    ❌ ভুল:
+ *      const data = req.body;
+ *      console.log(data.length); // Error হতে পারে
+ *
+ *    ✅ সঠিক:
+ *      যদি (req.body instanceof Buffer) {
+ *        const text = req.body.toString("utf-8");
+ *      }
+ *
+ * 4) বড় binary পাঠিয়ে limit ভুলে যাওয়া
+ *
+ *    বড় file পাঠালে default limit এ গিয়ে error হতে পারে।
+ *    তখন limit set করতে হয়:
+ *
+ *    app.use(express.raw({ type: "application/octet-stream", limit: "5mb" }));
  *
  * -----------------------------------------------
  * ব্যবহারগত উদাহরণ (middleware হিসেবে)
@@ -44,13 +92,18 @@ import { Request, Response } from "express";
 
 const app = express();
 
-// Middleware হিসেবে raw body ধরবে, ধরো Content-Type: application/octet-stream
-app.use(express.raw({ type: "application/octet-stream" }));
+// Middleware হিসেবে raw body ধরবে
+app.use(
+  express.raw({
+    type: "application/octet-stream",
+    limit: "5mb",
+  })
+);
 
 app.post("/upload-binary", (req: Request, res: Response) => {
-  const dataBuffer = req.body; // Buffer type হলে raw binary data এখানে থাকবে
+  const dataBuffer = req.body;
+
   if (dataBuffer instanceof Buffer) {
-    // আপনি Buffer কে string / file / binary format হিসেবে ব্যবহার করতে পারেন
     const text = dataBuffer.toString("utf-8");
     res.send(`Received data: ${text}`);
   } else {
