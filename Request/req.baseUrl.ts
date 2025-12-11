@@ -1,18 +1,18 @@
-/**
+/**...
  * ===============================================
  * req.baseUrl – বিস্তারিত ব্যাখ্যা
  * ===============================================
  *
  * 1️⃣ কীভাবে কাজ করে:
  * -------------------
- * - যখন তুমি Express.js এ sub-router (Router) ব্যবহার করো বা কোন app কে
- *   একটি specific path এ mount করো, তখন সেই path কে বলা হয় **mount point**।
+ * - যখন  Express.js এ sub-router (Router) ব্যবহার করা হয় বা কোন app কে
+ *   একটি specific path এ mount করা হয়, তখন সেই path কে বলা হয় **mount point**।
  * - `req.baseUrl` সেই mounted path কে store করে।
  * - এটি **route এর current path নয়**, শুধু router বা app যে path এ mount হয়েছে তা দেখায়।
  *
  * উদাহরণ:
  * -------------------
- * ধরো main app এ আমরা adminRouter কে "/admin" path এ mount করেছি:
+ *  main app এ আমরা adminRouter কে "/admin" path এ mount করেছি:
  *
  * app.use("/admin", adminRouter);
  *

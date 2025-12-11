@@ -91,7 +91,7 @@
 
 // const app = express();
 
-// // Middleware হিসেবে public ফোল্ডারের ফাইল serve করবে
+// Middleware হিসেবে public ফোল্ডারের ফাইল serve করবে
 // app.use(express.static(path.join(__dirname, "public"), { maxAge: "1d" }));
 
 // app.listen(3000, () => {

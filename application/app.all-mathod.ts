@@ -1,167 +1,345 @@
 /**
- * =================================================
- * Express.js App Methods & Middleware – Reference
- * =================================================
+ * =====================================================================
+ *   📘 EXPRESS Application Methods (app.*) — FULL Documentation (Bangla)
+ * =====================================================================
  *
- * এই ফাইলে দেখানো হয়েছে:
- * - HTTP route methods
- * - Middleware
- * - Built-in body parsers
- * - Static file serving
- * - App configuration methods
- * - Error handling
+ *  এই ফাইলটি Express.js অফিসিয়াল ডকুমেন্টেশন অনুযায়ী তৈরি।
+ *  এখানে Express Application (app object) এর সব গুরুত্বপূর্ণ methods,
+ *  তাদের কাজ, ব্যবহার এবং example উল্লেখ করা হয়েছে।
  *
+ *  NOTE:
+ *  -----
+ *  app = express() → এই app instance-এর উপরে সব method কাজ করে।
+ *
+ * =====================================================================
  */
 
 import express, { Request, Response, NextFunction } from "express";
 
 const app = express();
 
-/* =================================================
-   1️⃣ Built-in Middleware
-   ================================================= */
-
-// JSON body parse
+/**
+ * ===========================================================
+ *  🔥 1) app.use(path?, middleware)
+ * ===========================================================
+ *  👉 Global অথবা path-specific middleware রেজিস্টার করতে ব্যবহৃত হয়।
+ *  👉 এটি request lifecycle-এর শুরুতেই execute হয়।
+ *
+ *  Example:
+ *      app.use(express.json());
+ *      app.use('/api', apiRouter);
+ */
 app.use(express.json());
 
-// URL-encoded body parse
-app.use(express.urlencoded({ extended: true }));
-
-// Plain text body parse
-app.use(express.text({ type: "text/plain" }));
-
-// Raw/binary body parse
-app.use(express.raw({ type: "application/octet-stream" }));
-
-// Static files serve
-app.use(express.static("public", { maxAge: "1d" }));
-
-/*
- * ❗ Common Mistakes (Built-in Middleware)
+/**
+ * ===========================================================
+ *  🔥 2) app.get(path, handler)
+ *  🔥 3) app.post(path, handler)
+ *  🔥 4) app.put(path, handler)
+ *  🔥 5) app.delete(path, handler)
+ * ===========================================================
+ *  👉 HTTP METHODS — browser/server যেভাবে request করে সেই অনুযায়ী কাজ করে।
  *
- * 1) Body parser order গুলিয়ে ফেলা
- * 2) express.raw / express.text এবং express.json একসাথে ভুলভাবে ব্যবহার
- * 3) Static middleware route এর পরে বসানো
+ *  GET     → ডেটা আনা
+ *  POST    → ডেটা তৈরি
+ *  PUT     → ডেটা update (full)
+ *  PATCH   → ডেটা update (partial)
+ *  DELETE  → ডেটা মুছে ফেলা
  */
 
-/* =================================================
-   2️⃣ HTTP Routes
-   ================================================= */
-
-app.get("/get-example", (req: Request, res: Response) => {
-  res.send("GET request received");
+app.get("/users", (req: Request, res: Response) => {
+  res.send("GET: All Users");
 });
 
-app.post("/post-example", (req: Request, res: Response) => {
-  res.json({ message: "POST request received", body: req.body });
+app.post("/users", (req: Request, res: Response) => {
+  res.send("POST: Create User");
 });
 
-app.put("/put-example", (req: Request, res: Response) => {
-  res.send("PUT request received");
+app.put("/users/:id", (req: Request, res: Response) => {
+  res.send(`PUT: Update User ${req.params.id}`);
 });
 
-app.patch("/patch-example", (req: Request, res: Response) => {
-  res.send("PATCH request received");
+app.delete("/users/:id", (req: Request, res: Response) => {
+  res.send(`DELETE: User ${req.params.id}`);
 });
 
-app.delete("/delete-example", (req: Request, res: Response) => {
-  res.send("DELETE request received");
-});
-
-// All HTTP methods
-app.all("/all-example", (req: Request, res: Response) => {
-  res.send(`ALL method: ${req.method}`);
-});
-
-/*
- * ❗ Common Mistakes (Routes)
- *
- * 1) একই route path duplicate করা
- * 2) async route এ try/catch না ব্যবহার করা
- * 3) response না পাঠিয়ে request pending রাখা
+/**
+ * ===========================================================
+ *  🔥 6) app.patch(path, handler)
+ * ===========================================================
+ *  👉 Partial update এর জন্য ব্যবহৃত হয়।
  */
-
-/* =================================================
-   3️⃣ Middleware Examples
-   ================================================= */
-
-// Global middleware
-app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log(`Request URL: ${req.url}`);
-  next();
+app.patch("/users/:id", (req: Request, res: Response) => {
+  res.send(`PATCH: Partially Updated User ${req.params.id}`);
 });
 
-// Param middleware
+/**
+ * ===========================================================
+ *  🔥 7) app.all(path, handler)
+ * ===========================================================
+ *  👉 যেকোনো HTTP method (GET, POST, PUT, ...) এই route handle করবে।
+ *  👉 Mostly debugging অথবা fallback এর জন্য ব্যবহৃত হয়।
+ */
+app.all("/any", (req: Request, res: Response) => {
+  res.send("This route handles ALL HTTP methods!");
+});
+
+/**
+ * ===========================================================
+ *  🔥 8) app.route(path)
+ * ===========================================================
+ *  👉 Chained routing — একই endpoint এ multiple HTTP methods clean ভাবে।
+ */
+app
+  .route("/products")
+  .get((req: Request, res: Response) => res.send("All Products"))
+  .post((req: Request, res: Response) => res.send("Create Product"));
+
+/**
+ * ===========================================================
+ *  🔥 9) app.param(name, callback)
+ * ===========================================================
+ *  👉 Dynamic parameter-এর উপর middleware attach করা।
+ *
+ *  Example:
+ *      /users/:userId → এখানে userId param
+ */
 app.param(
-  "id",
-  (req: Request, res: Response, next: NextFunction, id: string) => {
-    console.log(`Parameter id = ${id}`);
+  "userId",
+  (req: Request, res: Response, next: NextFunction, value: string) => {
+    console.log("Param middleware:", value);
     next();
   }
 );
 
-// Param route
-app.get("/user/:id", (req: Request, res: Response) => {
-  res.send(`User ID: ${req.params.id}`);
+app.get("/profile/:userId", (req: Request, res: Response) => {
+  res.send("User Profile");
 });
 
-/*
- * ❗ Common Mistakes (Middleware)
+/**
+ * ===========================================================
+ *  🔥 10) app.set(name, value)
+ *  🔥 11) app.get(name)
+ * ===========================================================
+ *  👉 Application-level settings।
  *
- * 1) next() call না করা
- * 2) param middleware এ validation না রাখা
- * 3) unnecessary heavy logic middleware এ লেখা
+ *  Example:
+ *      app.set("view engine", "ejs");
  */
+app.set("title", "My App");
+app.get("title"); // => "My App"
 
-/* =================================================
-   4️⃣ App Settings / Configuration
-   ================================================= */
+/**
+ * ===========================================================
+ *  🔥 12) app.engine(ext, callback)
+ * ===========================================================
+ *  👉 Custom template engine রেজিস্টার করা।
+ */
+app.engine("custom", () => {});
 
-app.set("view engine", "ejs");
-app.set("trust proxy", true);
-app.enable("case sensitive routing");
+/**
+ * ===========================================================
+ *  🔥 13) app.listen(port, callback)
+ * ===========================================================
+ *  👉 Server শুরু করার জন্য ব্যবহৃত হয়।
+ */
+app.listen(5000, () => {
+  console.log("Server is running on port 5000");
+});
+
+/**
+ * ===========================================================
+ *  🔥 14) app.disable(setting)
+ *  🔥 15) app.disabled(setting)
+ *  🔥 16) app.enable(setting)
+ *  🔥 17) app.enabled(setting)
+ * ===========================================================
+ *  👉 Application settings ON / OFF করা।
+ *
+ *  Example:
+ *      app.enable("trust proxy");
+ */
+app.enable("trust proxy");
 app.disable("x-powered-by");
 
-console.log(
-  "Case sensitive routing enabled?",
-  app.enabled("case sensitive routing")
-);
-console.log("X-Powered-By disabled?", app.disabled("x-powered-by"));
+/**
+ * ===========================================================
+ *  🔥 18) app.locals
+ * ===========================================================
+ *  👉 Template engine অথবা গ্লোবাল ডেটা store করতে ব্যবহৃত হয়।
+ */
+app.locals.siteName = "Express Demo";
 
-/*
- * ❗ Common Mistakes (Settings)
- *
- * 1) production এ trust proxy ভুলভাবে সেট করা
- * 2) view engine ফাইল configure না করা
+/**
+ * ===========================================================
+ *  🔥 19) app.mountpath
+ * ===========================================================
+ *  👉 অ্যাপ বা রাউটার কোথায় mount হয়েছে সেই path।
+ *  (ব্যবহার বেশি কমন নয়, তবে docs-এর অংশ)
  */
 
-/* =================================================
-   5️⃣ Error Handling
-   ================================================= */
-
-// 404 handler
-app.use((req: Request, res: Response) => {
-  res.status(404).send("404 Not Found");
-});
-
-// Error handler
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).send("Internal Server Error");
-});
-
-/*
- * ❗ Common Mistakes (Error Handling)
+/**
+ * =====================================================================
+ *  ✔ Summary
+ *  ---------
+ *  এই ফাইলে Express এর Application methods গুলো সম্পূর্ণভাবে দেখানো হলো:
  *
- * 1) Error middleware এর 4টা parameter না রাখা
- * 2) async error ধরতে next(err) call না করা
- * 3) 404 handler কে error handler এর আগে বসানো
+ *  - app.use()
+ *  - app.get(), app.post(), app.put(), app.patch(), app.delete()
+ *  - app.all()
+ *  - app.route()
+ *  - app.param()
+ *  - app.listen()
+ *  - app.set(), app.get()
+ *  - app.enable(), app.disable()
+ *  - app.locals
+ *
+ *  এই ফাইল ছাত্রদের পড়ার পাশাপাশি প্রফেশনাল লেভেলের ডেভেলপারদের জন্যও
+ *  একটি পূর্ণাঙ্গ রেফারেন্স হিসেবে ব্যবহার করা যাবে।
+ *
+ * =====================================================================
  */
 
-/* =================================================
-   6️⃣ Start Server
-   ================================================= */
+/**
+ * ===========================================================
+ *   📘 Express Application Extra Methods (Full Documentation)
+ * ===========================================================
+ *
+ *  এই ফাইলটি Express.js অফিসিয়াল ডক অনুযায়ী তৈরি করা হয়েছে।
+ *  এখানে আগের সাধারণ app.* methods ছাড়াও সমস্ত “extra / low-level / internal”
+ *  methods নিয়ে বিস্তারিত ব্যাখ্যা দেওয়া হলো।
+ *
+ *  লক্ষ্য:
+ *  ------
+ *  - শিক্ষার্থীরা সহজে বুঝতে পারবে
+ *  - Developer reference হিসেবে ব্যবহার করা যাবে
+ *
+ * ===========================================================
+ */
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+/**
+ * 🔥 1) app.path()
+ * ----------------
+ * অ্যাপটির path কী, তা রিটার্ন করে।
+ * মূলত mounted router/app এর path বের করতে লাগে।
+ */
+const appPath = app.path();
+
+/**
+ * 🔥 2) app.render(view, options?, callback?)
+ * ------------------------------------------
+ * View template render করার জন্য ব্যবহৃত হয়।
+ * যদি তুমি EJS / Pug / Handlebars ব্যবহার করো — তখন গুরুত্বপূর্ণ।
+ *
+ * উদাহরণ:
+ * app.render('index', { title: 'Home' }, (err, html) => {
+ *   if(err) throw err;
+ *   console.log(html);
+ * });
+ */
+
+/**
+ * 🔥 3) app.on(event, callback)
+ * -----------------------------
+ * Express EventEmitter inherits করে —
+ * তাই app এ custom events listen করা যায়।
+ *
+ * উদাহরণ events:
+ *  - "mount" → অ্যাপ বা রাউটার mount হলে
+ *  - "error" → internal error event (rare)
+ */
+app.on("mount", () => {
+  console.log("Mounted!");
 });
+
+/**
+ * 🔥 4) app.listen() → return করে http.Server object
+ * ---------------------------------------------------
+ * Server শুরু করার জন্য ব্যবহৃত হয়।
+ * গুরুত্বপূর্ণ তথ্য:
+ * - app.listen() আসলে http.createServer(app) রিটার্ন করে
+ * - সেই server object দিয়ে socket.io বা WebSocket attach করা যায়
+ */
+const server = app.listen(5000, () => {
+  console.log("Server running on port 5000");
+});
+
+/**
+ * 🔥 5) app.emit(eventName, ...args)
+ * ----------------------------------
+ * Express এর instance দিয়েই event emit করা যায়।
+ * কমন না হলেও possible।
+ */
+app.emit("customEvent", { data: 123 });
+
+/**
+ * 🔥 6) app.parent
+ * -----------------
+ * Nested অ্যাপ / Router ব্যবহার করলে parent অ্যাপ কে নির্দেশ করে।
+ *
+ * উদাহরণ:
+ * const admin = express();
+ * const dashboard = express();
+ * admin.use('/dashboard', dashboard);
+ * console.log(dashboard.parent === admin); // true
+ */
+
+/**
+ * 🔥 7) app.router
+ * -----------------
+ * ⚠️ Note: Express v4-এ deprecated
+ * তবে ডকুমেন্টেশনে উল্লেখ আছে
+ */
+
+/**
+ * 🔥 8) app.defaultConfiguration()
+ * ---------------------------------
+ * ⚠️ Internal method (public use না)
+ * Express initialization এ ব্যবহৃত হয়
+ */
+
+/**
+ * 🔥 9) app.init()
+ * -----------------
+ * Express নিজেকে initialize করে।
+ * এটাও internal API
+ */
+
+/**
+ * 🔥 10) app.handle(req, res, next)
+ * ---------------------------------
+ * Very low-level
+ * Express নিজস্ব internal request handler
+ * Production এ সাধারণ dev use নয়
+ */
+
+/**
+ * 🔥 11) app.locals.settings
+ * --------------------------
+ * Application settings store করার জায়গা
+ * app.set() এর মান এখানে স্টোর হয়
+ */
+
+/**
+ * 🔥 12) app.engines
+ * ------------------
+ * কোন template engine কোন extension এর সাথে mapped তা store হয়
+ * Mostly internal but public
+ */
+
+/**
+ * 🔥 13) app.get() → (Setting getter)
+ * -----------------------------------
+ * ⚠️ নাম clash:
+ * - app.get(path, handler) → route
+ * - app.get(setting) → app settings retrieve
+ */
+
+/**
+ * 🔥 14) app._router (internal API)
+ * ---------------------------------
+ * Express routing layer এর raw access
+ * Production এ ব্যবহার discouraged
+ */
+
+export default app;
